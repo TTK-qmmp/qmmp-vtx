@@ -69,21 +69,21 @@ bool VTXHelper::initialize()
         return false;
     }
 
-    const size_t sz = stdio_length(file);
-    if(sz <= 0)
+    const size_t size = stdio_length(file);
+    if(size <= 0)
     {
         stdio_close(file);
         return false;
     }
 
-    char *buf = (char *)malloc(sz);
+    char *buf = (char *)malloc(size);
     if(!buf)
     {
         stdio_close(file);
         return false;
     }
 
-    if(stdio_read(buf, 1, sz, file) != sz)
+    if(stdio_read(buf, 1, size, file) != size)
     {
         free(buf);
         stdio_close(file);
@@ -113,7 +113,7 @@ bool VTXHelper::initialize()
     ayemu_vtx_free(hdr);
     stdio_close(file);
 
-    m_info->decoder = ayemu_vtx_load(buf, sz);
+    m_info->decoder = ayemu_vtx_load(buf, size);
     if(!m_info->decoder)
     {
         free(buf);
@@ -128,10 +128,10 @@ bool VTXHelper::initialize()
     m_info->left = 0;
     m_info->vtx_pos = 0;
     m_info->readpos = 0;
+    m_info->rate = size * 8.0 / m_totalTime;
 
     ayemu_set_sound_format(&m_info->ay, samplerate(), channels(), bitsPerSample());
 
-    m_info->rate = 2 * bitsPerSample() / 8;
     return true;
 }
 

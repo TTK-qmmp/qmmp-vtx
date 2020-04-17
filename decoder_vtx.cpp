@@ -53,11 +53,6 @@ qint64 DecoderVTX::totalTime() const
     return m_vtx->totalTime();
 }
 
-void DecoderVTX::seek(qint64 pos)
-{
-    m_vtx->seek(pos);
-}
-
 int DecoderVTX::bitrate() const
 {
     return m_vtx->bitrate();
@@ -66,4 +61,9 @@ int DecoderVTX::bitrate() const
 qint64 DecoderVTX::read(unsigned char *data, qint64 size)
 {
     return m_vtx->read(data, size);
+}
+
+void DecoderVTX::seek(qint64 pos)
+{
+    m_vtx->seek(pos);
 }
