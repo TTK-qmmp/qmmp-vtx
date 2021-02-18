@@ -1,6 +1,6 @@
 /* =================================================
  * This file is part of the TTK qmmp plugin project
- * Copyright (C) 2015 - 2020 Greedysky Studio
+ * Copyright (C) 2015 - 2021 Greedysky Studio
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ class VTXMetaDataModel : public MetaDataModel
 {
     Q_DECLARE_TR_FUNCTIONS(VTXMetaDataModel)
 public:
-    VTXMetaDataModel(const QString &path);
+    explicit VTXMetaDataModel(const QString &path);
     virtual ~VTXMetaDataModel();
 
     virtual QList<TagModel* > tags() const override;
@@ -34,12 +34,13 @@ public:
 private:
     QList<TagModel* > m_tags;
     VTXHelper* m_vtx;
+
 };
 
 class VTXFileTagModel : public TagModel
 {
 public:
-    VTXFileTagModel(VTXHelper* vtx);
+    explicit VTXFileTagModel(VTXHelper* vtx);
     virtual ~VTXFileTagModel();
 
     virtual QString name() const override;
@@ -49,6 +50,7 @@ public:
 
 private:
     VTXHelper* m_vtx;
+
 };
 
 #endif // VTXMETADATAMODEL_H
