@@ -16,13 +16,15 @@ bool DecoderVTX::initialize()
 {
     if(!m_vtx->initialize())
     {
+        qWarning("DecoderVTX: initialize failed");
         return false;
     }
 
-    int rate = m_vtx->samplerate();
-    int channels = m_vtx->channels();
+    const int rate = m_vtx->sampleRate();
+    const int channels = m_vtx->channels();
     if(rate == 0 || channels == 0)
     {
+        qWarning("DecoderVTX: rate or channel invalid");
         return false;
     }
 

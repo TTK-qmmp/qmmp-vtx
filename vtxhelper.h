@@ -34,8 +34,6 @@ typedef struct {
     int vtx_pos;
     int left;
     int rate;
-    int currentsample;
-    float readpos;
 } vtx_info_t;
 
 /*!

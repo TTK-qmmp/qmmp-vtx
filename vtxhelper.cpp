@@ -48,26 +48,30 @@ bool VTXHelper::initialize()
     FILE *file = stdio_open(m_path.toLocal8Bit().constData());
     if(!file)
     {
+        qWarning("VTXHelper: open file failed");
         return false;
     }
 
     const size_t size = stdio_length(file);
     if(size <= 0)
     {
+        qWarning("VTXHelper: file size invalid");
         stdio_close(file);
         return false;
     }
 
-    char *buf = (char *)malloc(size);
-    if(!buf)
+    char *module = (char *)malloc(size);
+    if(!module)
     {
+        qWarning("VTXHelper: file data read error");
         stdio_close(file);
         return false;
     }
 
-    if(stdio_read(buf, 1, size, file) != size)
+    if(stdio_read(module, 1, size, file) != size)
     {
-        free(buf);
+        qWarning("VTXHelper: file data read error");
+        free(module);
         stdio_close(file);
         return false;
     }
@@ -79,7 +83,8 @@ bool VTXHelper::initialize()
     ayemu_vtx_t *hdr = ayemu_vtx_header(header_buf, header_sz);
     if(!hdr)
     {
-        free(buf);
+        qWarning("VTXHelper: ayemu_vtx_header error");
+        free(module);
         stdio_close(file);
         return false;
     }
@@ -95,13 +100,14 @@ bool VTXHelper::initialize()
     ayemu_vtx_free(hdr);
     stdio_close(file);
 
-    m_info->decoder = ayemu_vtx_load(buf, size);
+    m_info->decoder = ayemu_vtx_load(module, size);
     if(!m_info->decoder)
     {
-        free(buf);
+        qWarning("VTXHelper: ayemu_vtx_load error");
+        free(module);
         return false;
     }
-    free(buf);
+    free(module);
 
     ayemu_set_chip_type(&m_info->ay, m_info->decoder->chiptype, nullptr);
     ayemu_set_chip_freq(&m_info->ay, m_info->decoder->chipFreq);
@@ -109,25 +115,24 @@ bool VTXHelper::initialize()
 
     m_info->left = 0;
     m_info->vtx_pos = 0;
-    m_info->readpos = 0;
     m_info->rate = size * 8.0 / m_totalTime;
 
-    ayemu_set_sound_format(&m_info->ay, samplerate(), channels(), bitsPerSample());
+    ayemu_set_sound_format(&m_info->ay, sampleRate(), channels(), bitsPerSample());
 
     return true;
 }
 
 int VTXHelper::totalTime() const
 {
-    return m_totalTime;
+    return m_totalTime * 1000;
 }
 
 void VTXHelper::seek(qint64 time)
 {
-    const int sample = time * samplerate();
+    const int sample = time * sampleRate() / 1000;
     // get frame
     int num_frames = m_info->decoder->regdata_size / AY_FRAME_SIZE;
-    int samples_per_frame = samplerate() / m_info->decoder->playerFreq;
+    int samples_per_frame = sampleRate() / m_info->decoder->playerFreq;
     // start of frame
     m_info->vtx_pos = sample / samples_per_frame;
     if(m_info->vtx_pos >= num_frames)
@@ -142,11 +147,10 @@ void VTXHelper::seek(qint64 time)
         m_info->regs[n] = *p;
     }
     // set number of bytes left in frame
-    m_info->left = samplerate() / m_info->decoder->playerFreq - (sample % samples_per_frame);
+    m_info->left = sampleRate() / m_info->decoder->playerFreq - (sample % samples_per_frame);
     // mul by rate to get number of bytes
     m_info->left *= m_info->rate;
-    m_info->currentsample = sample;
-    m_info->readpos = (float)m_info->currentsample / samplerate();
+    ayemu_set_regs(&m_info->ay, m_info->regs);
 }
 
 int VTXHelper::bitrate() const
@@ -174,7 +178,7 @@ int VTXHelper::read(unsigned char *buf, int size)
     const int initsize = size;
     int donow = 0;
 
-    while(size > 0) 
+    while(size > 0)
     {
         if(m_info->left > 0)
         {
@@ -192,7 +196,7 @@ int VTXHelper::read(unsigned char *buf, int size)
             else 
             {
                 // number of samples it current frame
-                m_info->left = samplerate() / m_info->decoder->playerFreq;
+                m_info->left = sampleRate() / m_info->decoder->playerFreq;
                 // mul by rate to get number of bytes;
                 m_info->left *= m_info->rate;
                 ayemu_set_regs(&m_info->ay, m_info->regs);
@@ -200,8 +204,6 @@ int VTXHelper::read(unsigned char *buf, int size)
             }
         }
     }
-    m_info->currentsample += (initsize - size) / 4;
-    m_info->readpos = (float)m_info->currentsample / samplerate();
     return initsize - size;
 }
 
