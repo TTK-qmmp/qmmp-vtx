@@ -1,4 +1,4 @@
-This is a plugin for Qmmp (1.4.1 or greater) which supports VTX file.
+This is a plugin for Qmmp (1.4.0 or greater) which supports VTX file.
 (AY/YM Audio File)
 
 The following packages are required, including development headers,

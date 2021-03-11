@@ -3,6 +3,8 @@
 #include "decodervtxfactory.h"
 #include "vtxmetadatamodel.h"
 
+#include <QMessageBox>
+
 bool DecoderVTXFactory::canDecode(QIODevice *) const
 {
     return false;
@@ -69,4 +71,21 @@ MetaDataModel* DecoderVTXFactory::createMetaDataModel(const QString &path, bool 
 {
     Q_UNUSED(readOnly);
     return new VTXMetaDataModel(path);
+}
+
+void DecoderVTXFactory::showSettings(QWidget *parent)
+{
+    Q_UNUSED(parent);
+}
+
+void DecoderVTXFactory::showAbout(QWidget *parent)
+{
+    QMessageBox::about (parent, tr("About VTX Reader Plugin"),
+                        tr("Qmmp VTX Reader Plugin")+"\n"+
+                        tr("Written by: Greedysky <greedysky@163.com>"));
+}
+
+QString DecoderVTXFactory::translation() const
+{
+    return QString();
 }
