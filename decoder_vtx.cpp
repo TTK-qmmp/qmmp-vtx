@@ -29,7 +29,7 @@ bool DecoderVTX::initialize()
     }
 
     configure(rate, channels, Qmmp::PCM_S16LE);
-
+    qDebug("DecoderVTX: initialize succes");
     return true;
 }
 
