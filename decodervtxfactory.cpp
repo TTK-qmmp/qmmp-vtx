@@ -46,12 +46,11 @@ QList<TrackInfo*> DecoderVTXFactory::createPlayList(const QString &path, TrackIn
 
     if(parts & TrackInfo::MetaData)
     {
-        helper.readMetaTags();
-        info->setValue(Qmmp::ALBUM, helper.album());
-        info->setValue(Qmmp::ARTIST, helper.artist());
-        info->setValue(Qmmp::COMMENT, helper.comment());
-        info->setValue(Qmmp::TITLE, helper.title());
-        info->setValue(Qmmp::TRACK, helper.tracker());
+        const QMap<Qmmp::MetaData, QString> metaData(helper.readMetaData());
+        for(auto itr = metaData.begin(); itr != metaData.end(); ++itr)
+        {
+            info->setValue(itr.key(), itr.value());
+        }
     }
 
     if(parts & TrackInfo::Properties)

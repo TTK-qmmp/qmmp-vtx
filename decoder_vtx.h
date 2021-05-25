@@ -40,8 +40,8 @@ public:
     virtual void seek(qint64 time) override;
 
 private:
-    VTXHelper* m_vtx;
+    VTXHelper* m_helper;
 
 };
 
-#endif // DECODER_VTX_H
+#endif

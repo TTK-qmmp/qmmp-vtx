@@ -4,24 +4,24 @@
 DecoderVTX::DecoderVTX(const QString &path)
     : Decoder()
 {
-    m_vtx = new VTXHelper(path);
+    m_helper = new VTXHelper(path);
 }
 
 DecoderVTX::~DecoderVTX()
 {
-    delete m_vtx;
+    delete m_helper;
 }
 
 bool DecoderVTX::initialize()
 {
-    if(!m_vtx->initialize())
+    if(!m_helper->initialize())
     {
         qWarning("DecoderVTX: initialize failed");
         return false;
     }
 
-    const int rate = m_vtx->sampleRate();
-    const int channels = m_vtx->channels();
+    const int rate = m_helper->sampleRate();
+    const int channels = m_helper->channels();
     if(rate == 0 || channels == 0)
     {
         qWarning("DecoderVTX: rate or channel invalid");
@@ -35,20 +35,20 @@ bool DecoderVTX::initialize()
 
 qint64 DecoderVTX::totalTime() const
 {
-    return m_vtx->totalTime();
+    return m_helper->totalTime();
 }
 
 int DecoderVTX::bitrate() const
 {
-    return m_vtx->bitrate();
+    return m_helper->bitrate();
 }
 
 qint64 DecoderVTX::read(unsigned char *data, qint64 size)
 {
-    return m_vtx->read(data, size);
+    return m_helper->read(data, size);
 }
 
 void DecoderVTX::seek(qint64 pos)
 {
-    m_vtx->seek(pos);
+    m_helper->seek(pos);
 }

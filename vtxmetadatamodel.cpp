@@ -3,15 +3,15 @@
 VTXMetaDataModel::VTXMetaDataModel(const QString &path)
     : MetaDataModel(true)
 {
-    m_vtx = new VTXHelper(path);
-    m_tags << new VTXFileTagModel(m_vtx);
+    m_helper = new VTXHelper(path);
+    m_tags << new VTXFileTagModel(m_helper);
 }
 
 VTXMetaDataModel::~VTXMetaDataModel()
 {
     while(!m_tags.isEmpty())
         delete m_tags.takeFirst();
-    delete m_vtx;
+    delete m_helper;
 }
 
 QList<TagModel* > VTXMetaDataModel::tags() const
@@ -23,7 +23,7 @@ QList<TagModel* > VTXMetaDataModel::tags() const
 VTXFileTagModel::VTXFileTagModel(VTXHelper* vtx)
     : TagModel()
 {
-    m_vtx = vtx;
+    m_helper = vtx;
 }
 
 VTXFileTagModel::~VTXFileTagModel()
@@ -49,16 +49,16 @@ QList<Qmmp::MetaData> VTXFileTagModel::keys() const
 
 QString VTXFileTagModel::value(Qmmp::MetaData key) const
 {
-    if(m_vtx && m_vtx->initialize())
+    if(m_helper && m_helper->initialize())
     {
-        m_vtx->readMetaTags();
+        const QMap<Qmmp::MetaData, QString> metaData(m_helper->readMetaData());
         switch((int) key)
         {
-        case Qmmp::TITLE: return m_vtx->title();
-        case Qmmp::ARTIST: return m_vtx->artist();
-        case Qmmp::ALBUM: return m_vtx->album();
-        case Qmmp::COMMENT: return m_vtx->comment();
-        case Qmmp::TRACK: return m_vtx->tracker();
+        case Qmmp::TITLE: return metaData.value(Qmmp::TITLE);
+        case Qmmp::ARTIST: return metaData.value(Qmmp::ARTIST);
+        case Qmmp::ALBUM: return metaData.value(Qmmp::ALBUM);
+        case Qmmp::COMMENT: return metaData.value(Qmmp::COMMENT);
+        case Qmmp::TRACK: return metaData.value(Qmmp::TRACK);
         }
     }
     return QString();

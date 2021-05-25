@@ -1,6 +1,6 @@
 #include "vtxhelper.h"
 
-int ayemu_vtx_get_next_frame(vtx_info_t *info)
+int ayemu_vtx_get_next_frame(vtx_info *info)
 {
     int numframes = info->decoder->regdata_size / AY_FRAME_SIZE;
     if(info->vtx_pos++ >= numframes)
@@ -19,16 +19,16 @@ int ayemu_vtx_get_next_frame(vtx_info_t *info)
 VTXHelper::VTXHelper(const QString &path)
 {
     m_path = path;
-    m_info = (vtx_info_t*)calloc(sizeof(vtx_info_t), 1);
+    m_info = (vtx_info*)calloc(sizeof(vtx_info), 1);
     m_totalTime = 0;
 }
 
 VTXHelper::~VTXHelper()
 {
-    close();
+    deinit();
 }
 
-void VTXHelper::close()
+void VTXHelper::deinit()
 {
     if(m_info) 
     {
@@ -91,11 +91,11 @@ bool VTXHelper::initialize()
 
     m_totalTime = hdr->regdata_size * 1.0 / AY_FRAME_SIZE / hdr->playerFreq;
 
-    m_meta.insert("title", hdr->title);
-    m_meta.insert("artist", hdr->author);
-    m_meta.insert("album", hdr->from);
-    m_meta.insert("tracker", hdr->tracker);
-    m_meta.insert("comment", hdr->comment);
+    m_metaData.insert(Qmmp::TITLE, hdr->title);
+    m_metaData.insert(Qmmp::ARTIST, hdr->author);
+    m_metaData.insert(Qmmp::ALBUM, hdr->from);
+    m_metaData.insert(Qmmp::TRACK, hdr->tracker);
+    m_metaData.insert(Qmmp::COMMENT, hdr->comment);
 
     ayemu_vtx_free(hdr);
     stdio_close(file);
@@ -207,7 +207,7 @@ int VTXHelper::read(unsigned char *buf, int size)
     return initsize - size;
 }
 
-QVariantMap VTXHelper::readMetaTags()
+const QMap<Qmmp::MetaData, QString> &VTXHelper::readMetaData() const
 {
-    return m_meta;
+    return m_metaData;
 }

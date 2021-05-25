@@ -33,7 +33,7 @@ public:
 
 private:
     QList<TagModel* > m_tags;
-    VTXHelper* m_vtx;
+    VTXHelper* m_helper;
 
 };
 
@@ -49,8 +49,8 @@ public:
     virtual void setValue(Qmmp::MetaData key, const QString &value) override;
 
 private:
-    VTXHelper* m_vtx;
+    VTXHelper* m_helper;
 
 };
 
-#endif // VTXMETADATAMODEL_H
+#endif

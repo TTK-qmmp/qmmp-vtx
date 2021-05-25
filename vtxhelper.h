@@ -23,7 +23,9 @@ extern "C" {
 #include "ayemu.h"
 #include "stdio_file.h"
 }
-#include <QVariantMap>
+#include <QMap>
+#include <QFile>
+#include <qmmp/qmmp.h>
 
 #define AY_FRAME_SIZE 14
 
@@ -34,7 +36,7 @@ typedef struct {
     int vtx_pos;
     int left;
     int rate;
-} vtx_info_t;
+} vtx_info;
 
 /*!
  * @author Greedysky <greedysky@163.com>
@@ -45,7 +47,7 @@ public:
     VTXHelper(const QString &path);
     virtual ~VTXHelper();
 
-    void close();
+    void deinit();
 
     bool initialize();
     int totalTime() const;
@@ -57,19 +59,13 @@ public:
     int bitsPerSample() const;
 
     int read(unsigned char *buf, int size);
-    QVariantMap readMetaTags();
-
-    inline QString title() const { return m_meta.value("title").toString(); }
-    inline QString artist() const { return m_meta.value("artist").toString(); }
-    inline QString album() const { return m_meta.value("album").toString(); }
-    inline QString tracker() const { return m_meta.value("tracker").toString(); }
-    inline QString comment() const { return m_meta.value("comment").toString(); }
+    const QMap<Qmmp::MetaData, QString> &readMetaData() const;
 
 private:
     QString m_path;
-    vtx_info_t *m_info;
+    vtx_info *m_info;
     qint64 m_totalTime;
-    QVariantMap m_meta;
+    QMap<Qmmp::MetaData, QString> m_metaData;
 
 };
 
