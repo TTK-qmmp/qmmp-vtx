@@ -6,23 +6,22 @@ TARGET = $$PLUGINS_PREFIX/Input/vtx
 HEADERS += decodervtxfactory.h \
            vtxmetadatamodel.h \
            decoder_vtx.h \
-           vtxhelper.h \
-           ayemu.h \
-           ayemu_8912.h \
-           ayemu_vtxfile.h
+           vtxhelper.h
     
 SOURCES += decodervtxfactory.cpp \
            vtxmetadatamodel.cpp \
            decoder_vtx.cpp \
            vtxhelper.cpp \
-           ay8912.c \
-           lh5dec.c \
-           vtxfile.c
+           libvtx/ay8912.c \
+           libvtx/lh5dec.c \
+           libvtx/vtxfile.c
 
 win32 {
-HEADERS += mman.h
-SOURCES += mman.c
+HEADERS += libvtx/mman.h
+SOURCES += libvtx/mman.c
 }
+
+INCLUDEPATH += $$PWD/libvtx
 
 unix {
     target.path = $$PLUGIN_DIR/Input
