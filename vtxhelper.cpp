@@ -1,6 +1,6 @@
 #include "vtxhelper.h"
 
-int ayemu_vtx_get_next_frame(vtx_info *info)
+int ayemu_vtx_get_next_frame(decode_info *info)
 {
     int numframes = info->decoder->regdata_size / AY_FRAME_SIZE;
     if(info->vtx_pos++ >= numframes)
@@ -19,7 +19,7 @@ int ayemu_vtx_get_next_frame(vtx_info *info)
 VTXHelper::VTXHelper(const QString &path)
 {
     m_path = path;
-    m_info = (vtx_info*)calloc(sizeof(vtx_info), 1);
+    m_info = (decode_info*)calloc(sizeof(decode_info), 1);
     m_totalTime = 0;
 }
 
@@ -37,14 +37,14 @@ void VTXHelper::deinit()
             ayemu_vtx_free(m_info->decoder);
             m_info->decoder = nullptr;
         }
-        ayemu_reset(&m_info->ay);
+        ayemu_reset(&m_info->input);
         free(m_info);
     }
 }
 
 bool VTXHelper::initialize()
 {
-    ayemu_init(&m_info->ay);
+    ayemu_init(&m_info->input);
     FILE *file = stdio_open(m_path.toLocal8Bit().constData());
     if(!file)
     {
@@ -109,15 +109,15 @@ bool VTXHelper::initialize()
     }
     free(module);
 
-    ayemu_set_chip_type(&m_info->ay, m_info->decoder->chiptype, nullptr);
-    ayemu_set_chip_freq(&m_info->ay, m_info->decoder->chipFreq);
-    ayemu_set_stereo(&m_info->ay, (ayemu_stereo_t)m_info->decoder->stereo, nullptr);
+    ayemu_set_chip_type(&m_info->input, m_info->decoder->chiptype, nullptr);
+    ayemu_set_chip_freq(&m_info->input, m_info->decoder->chipFreq);
+    ayemu_set_stereo(&m_info->input, (ayemu_stereo_t)m_info->decoder->stereo, nullptr);
 
     m_info->left = 0;
     m_info->vtx_pos = 0;
-    m_info->rate = size * 8.0 / m_totalTime;
+    m_info->bitrate = size * 8.0 / m_totalTime;
 
-    ayemu_set_sound_format(&m_info->ay, sampleRate(), channels(), bitsPerSample());
+    ayemu_set_sound_format(&m_info->input, sampleRate(), channels(), bitsPerSample());
 
     return true;
 }
@@ -149,13 +149,13 @@ void VTXHelper::seek(qint64 time)
     // set number of bytes left in frame
     m_info->left = sampleRate() / m_info->decoder->playerFreq - (sample % samples_per_frame);
     // mul by rate to get number of bytes
-    m_info->left *= m_info->rate;
-    ayemu_set_regs(&m_info->ay, m_info->regs);
+    m_info->left *= m_info->bitrate;
+    ayemu_set_regs(&m_info->input, m_info->regs);
 }
 
 int VTXHelper::bitrate() const
 {
-    return m_info->rate;
+    return m_info->bitrate;
 }
 
 int VTXHelper::sampleRate() const
@@ -184,7 +184,7 @@ int VTXHelper::read(unsigned char *buf, int size)
         {
             donow = (size > m_info->left) ? m_info->left : size;
             m_info->left -= donow;
-            buf = (unsigned char *)ayemu_gen_sound(&m_info->ay, (char *)buf, donow);
+            buf = (unsigned char *)ayemu_gen_sound(&m_info->input, (char *)buf, donow);
             size -= donow;
         }
         else 
@@ -198,8 +198,8 @@ int VTXHelper::read(unsigned char *buf, int size)
                 // number of samples it current frame
                 m_info->left = sampleRate() / m_info->decoder->playerFreq;
                 // mul by rate to get number of bytes;
-                m_info->left *= m_info->rate;
-                ayemu_set_regs(&m_info->ay, m_info->regs);
+                m_info->left *= m_info->bitrate;
+                ayemu_set_regs(&m_info->input, m_info->regs);
                 donow = 0;
             }
         }

@@ -20,7 +20,7 @@
 #define VTXHELPER_H
 
 extern "C" {
-#include "ayemu.h"
+#include <libvtx/ayemu.h>
 #include "stdio_file.h"
 }
 #include <QMap>
@@ -31,12 +31,12 @@ extern "C" {
 
 typedef struct {
     ayemu_vtx_t *decoder;
-    ayemu_ay_t ay;
+    ayemu_ay_t input;
     unsigned char regs[AY_FRAME_SIZE];
     int vtx_pos;
     int left;
-    int rate;
-} vtx_info;
+    int bitrate;
+} decode_info;
 
 /*!
  * @author Greedysky <greedysky@163.com>
@@ -63,7 +63,7 @@ public:
 
 private:
     QString m_path;
-    vtx_info *m_info;
+    decode_info *m_info;
     qint64 m_totalTime;
     QMap<Qmmp::MetaData, QString> m_metaData;
 
